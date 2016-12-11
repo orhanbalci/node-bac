@@ -1,0 +1,5 @@
+*.class
+*.log
+
+# node specific
+node_modules/*
