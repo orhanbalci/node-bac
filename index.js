@@ -48,8 +48,13 @@ client.on('data', function(data) {
 			rl.close();        
 		});
      
-	}else if(serverMessage.request_type == 6){
-		console.log("New Player  added to table " + serverMessage.name + "to direction " + serverMessage.user_direction)
+	}else if(serverMessage.request_type == 7){
+		console.log("New Player  added to table") ;
+		console.log("Cross Player : " + serverMessage.cross_user_name);
+		console.log("Left Player  : " + serverMessage.left_user_name);
+		console.log("Right Player : " + serverMessage.right_user_name);		
+	}else if(serverMessage.request_type == 8){
+		console.log("Your cards : " + serverMessage.player_cards)		
 	}
 	
     
