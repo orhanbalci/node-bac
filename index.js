@@ -72,6 +72,19 @@ client.on('data', function(data) {
 			}));
 			rl5.close();
 		});
+	}else if(serverMessage.request_type == 9) {
+		var rl9 = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+		rl9.question('Whats trump: ', function(cardType) {
+
+			client.write(messages.BasRequestResponse.encode({
+				request_type: 10,
+				card_in_play: {card_number : Ace, card_type : cardType}
+			}));
+			rl9.close();
+		});
 	}
 });
 
