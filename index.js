@@ -57,6 +57,9 @@ client.on('data', function(data) {
 			return card.card_number + " of " + card.card_type
 		}).join())
 	} else if (serverMessage.request_type == 4) { //el sayisi sor
+		console.log("Cross Play Count : " + serverMessage.cross_play_count)
+		console.log("Left Play Count : " + serverMessage.left_play_count)
+		console.log("Right Play Count : " + serverMessage.right_play_count)
 		var rl5 = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout
