@@ -16,7 +16,7 @@ var PORT = 4242;
 
 
 var encodedBuffer = messages.BasRequestResponse.encode({
-	request_type: 0,
+	request_type: messages.RequestResponseType.FC_SEND_TEXT_MESSAGE,
 	text_message: 'hello world'
 })
 
@@ -41,24 +41,24 @@ client.on('data', function(data) {
 		rl.question('Please tell me your name: ', function(name) {
 
 			client.write(messages.BasRequestResponse.encode({
-				request_type: 3,
+				request_type: messages.RequestResponseType.FC_SEND_NAME,
 				name: name
 			}));
 			rl.close();
 		});
 
-	} else if (serverMessage.request_type == 7) {
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_ALL_USERS_INFOS) {
 		console.log("New Player  added to table");
 		console.log("Cross Player : " + serverMessage.cross_user_name);
 		console.log("Left Player  : " + serverMessage.left_user_name);
 		console.log("Right Player : " + serverMessage.right_user_name);
-	} else if (serverMessage.request_type == 8) { // kartlari goster
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_PLAYER_CARDS) { // kartlari goster
 		console.log("Your cards : " + serverMessage.user_cards.map(function(card) {
 			return card.card_number + " of " + card.card_type
 		}).join())
-	} else if (serverMessage.request_type == 4) { //el sayisi sor
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_PLAY_COUNT) { //el sayisi sor
 		console.log("Cross Play Count : " + serverMessage.cross_play_count)
-		console.log("Left Play Count : " + serverMessage.left_play_count)
+		console.log("Left Play Count  : " + serverMessage.left_play_count)
 		console.log("Right Play Count : " + serverMessage.right_play_count)
 		var rl5 = readline.createInterface({
 			input: process.stdin,
@@ -67,12 +67,12 @@ client.on('data', function(data) {
 		rl5.question('How many plays: ', function(playCount) {
 
 			client.write(messages.BasRequestResponse.encode({
-				request_type: 5,
+				request_type: messages.RequestResponseType.FC_SEND_PLAY_COUNT,
 				play_count: playCount
 			}));
 			rl5.close();
 		});
-	}else if(serverMessage.request_type == 9) {
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_TRUMP) {
 		var rl9 = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout
@@ -80,8 +80,11 @@ client.on('data', function(data) {
 		rl9.question('Whats trump: ', function(cardType) {
 
 			client.write(messages.BasRequestResponse.encode({
-				request_type: 10,
-				card_in_play: {card_number : Ace, card_type : cardType}
+				request_type: messages.RequestResponseType.FC_SEND_TRUMP,
+				card_in_play: {
+					card_number: 1,
+					card_type: cardType
+				}
 			}));
 			rl9.close();
 		});
