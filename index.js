@@ -37,7 +37,7 @@ client.on('data', function(data) {
 	console.log('Server Response: ' + serverMessage.request_type);
 	// Close the client socket completely
 	//client.destroy();
-	if (serverMessage.request_type == 2) {
+	if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_NAME) {
 		console.log('Please tell me your name:');		
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_ALL_USERS_INFOS) {
 		console.log("New Player  added to table");
@@ -55,9 +55,26 @@ client.on('data', function(data) {
 		console.log("How many plays?")		
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_TRUMP) {
 		console.log('Whats trump?')		
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_WHOS_TURN){
+		console.log("Cards on table " + serverMessage.cards_on_table.map(function(card){
+			return cardNumberToString(card.card_number) + " of " + cardTypeToString(card.card_type)
+		}).join())
+		console.log("Whos Turn : " + userDirectionToString(serverMessage.user_direction))
 	}
 });
 
+function userDirectionToString(userDirection) {
+	switch(userDirection){
+		case 0:
+			return "Cross";
+		case 1:
+			return "Left";
+		case 2:
+			return "Right";
+		case 3:
+			return "Self";
+	}
+}
 function cardNumberToString(cardNumber) {
 	switch(cardNumber){
 		case 0:
@@ -111,10 +128,10 @@ rl.on('line', function(line){
 			name: commands[1]
 		}));
 		break;
-		case "PC":
+		case "SPC":
 		client.write(messages.BasRequestResponse.encode({
 				request_type: messages.RequestResponseType.FC_SEND_PLAY_COUNT,
-				play_count: commands[1]
+				play_count: parseInt(commands[1])
 			}));
 		break;
 		case "WT":
@@ -122,7 +139,15 @@ rl.on('line', function(line){
 			request_type: messages.RequestResponseType.FC_SEND_TRUMP,
 			card_in_play: {
 				card_number: 1,
-				card_type: commands[1]
+				card_type: messages.CardType.CT_SPADES
+			}
+		}));
+		case "PC" :
+		client.write(messages.BasRequestResponse.encode({
+			request_type: messages.RequestResponseType.FC_PLAY_CARD,
+			card_in_play: {
+				card_number: commands[1],
+				card_type: parseInt(commands[2])
 			}
 		}));
 		break;
