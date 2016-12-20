@@ -38,15 +38,7 @@ client.on('data', function(data) {
 	// Close the client socket completely
 	//client.destroy();
 	if (serverMessage.request_type == 2) {
-		rl.question('Please tell me your name: ', function(name) {
-
-			client.write(messages.BasRequestResponse.encode({
-				request_type: messages.RequestResponseType.FC_SEND_NAME,
-				name: name
-			}));
-			rl.close();
-		});
-
+		console.log('Please tell me your name:');		
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_ALL_USERS_INFOS) {
 		console.log("New Player  added to table");
 		console.log("Cross Player : " + serverMessage.cross_user_name);
@@ -54,52 +46,108 @@ client.on('data', function(data) {
 		console.log("Right Player : " + serverMessage.right_user_name);
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_PLAYER_CARDS) { // kartlari goster
 		console.log("Your cards : " + serverMessage.user_cards.map(function(card) {
-			return card.card_number + " of " + card.card_type
+			return cardNumberToString(card.card_number) + " of " + cardTypeToString(card.card_type)
 		}).join())
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_PLAY_COUNT) { //el sayisi sor
 		console.log("Cross Play Count : " + serverMessage.cross_play_count)
 		console.log("Left Play Count  : " + serverMessage.left_play_count)
 		console.log("Right Play Count : " + serverMessage.right_play_count)
-		var rl5 = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-		rl5.question('How many plays: ', function(playCount) {
-
-			client.write(messages.BasRequestResponse.encode({
-				request_type: messages.RequestResponseType.FC_SEND_PLAY_COUNT,
-				play_count: playCount
-			}));
-			rl5.close();
-		});
+		console.log("How many plays?")		
 	} else if (serverMessage.request_type == messages.RequestResponseType.FS_ASK_TRUMP) {
-		var rl9 = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-		rl9.question('Whats trump: ', function(cardType) {
-
-			client.write(messages.BasRequestResponse.encode({
-				request_type: messages.RequestResponseType.FC_SEND_TRUMP,
-				card_in_play: {
-					card_number: 1,
-					card_type: cardType
-				}
-			}));
-			rl9.close();
-		});
+		console.log('Whats trump?')		
 	}
 });
+
+function cardNumberToString(cardNumber) {
+	switch(cardNumber){
+		case 0:
+			return "Ace"
+		case 1:
+			return "Two"
+		case 2:
+			return "Three"
+		case 3:
+			return "Four"
+		case 4:
+			return "Five"
+		case 5:
+			return "Six"
+		case 6:
+			return "Seven"
+		case 7:
+			return "Eight"
+		case 8:
+			return "Nine"
+		case 9:
+			return "Ten"
+		case 10: 
+			return "Jack"
+		case 11:
+			return "Queen"
+		case 12:
+			return "King"
+	}
+}
+
+function cardTypeToString(cardType){
+	switch(cardType){
+		case 0:
+			return "Spades"
+		case 1:
+			return "Hearts"
+		case 2:
+			return "Clubs"
+		case 3:
+			return "Diamonds"
+	}
+}
+
+rl.on('line', function(line){
+	var commands = line.trim().split(" ")	
+	switch (commands[0]){
+		case "SN" :
+		client.write(messages.BasRequestResponse.encode({
+			request_type: messages.RequestResponseType.FC_SEND_NAME,
+			name: commands[1]
+		}));
+		break;
+		case "PC":
+		client.write(messages.BasRequestResponse.encode({
+				request_type: messages.RequestResponseType.FC_SEND_PLAY_COUNT,
+				play_count: commands[1]
+			}));
+		break;
+		case "WT":
+		client.write(messages.BasRequestResponse.encode({
+			request_type: messages.RequestResponseType.FC_SEND_TRUMP,
+			card_in_play: {
+				card_number: 1,
+				card_type: commands[1]
+			}
+		}));
+		break;
+	}
+})
 
 // Add a 'close' event handler for the client socket
 client.on('close', function() {
 	console.log('Connection closed');
 });
 
-process.on('SIGINT', function() {
-	//process.stdin.destroy();
-	console.log('Destroying app')
+
+rl.on('close', function() {
+  	console.log('Destroying app')	
+	process.stdin.destroy();
 	client.end();
 	client.destroy();
-	process.exit();
+	process.exit(0);
+});
+
+process.on('SIGINT', function() {	
+	console.log('Destroying app')
+	rl.close(); 
+	process.stdin.destroy();
+	client.end();
+	client.destroy();
+	process.exit(0);
 });
