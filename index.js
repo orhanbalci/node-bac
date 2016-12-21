@@ -59,9 +59,44 @@ client.on('data', function(data) {
 		console.log("Cards on table " + serverMessage.cards_on_table.map(function(card){
 			return cardNumberToString(card.card_number) + " of " + cardTypeToString(card.card_type)
 		}).join())
+		console.log("Your cards " + serverMessage.user_cards.map(function(card){
+			return cardNumberToString(card.card_number) + " of " + cardTypeToString(card.card_type)
+		}).join())
 		console.log("Whos Turn : " + userDirectionToString(serverMessage.user_direction))
 	}
 });
+
+
+function cardNumberToEnum(cardNumber){
+	switch(cardNumber){
+		case 0:
+			return messages.CardNumber.CN_ACE;
+		case 1:
+			return messages.CardNumber.CN_TWO;
+		case 2:
+			return messages.CardNumber.CN_THREE;
+		case 3:
+			return messages.CardNumber.CN_FOUR;
+		case 4:
+			return messages.CardNumber.CN_FIVE;
+		case 5:
+			return messages.CardNumber.CN_SIX;
+		case 6:
+			return messages.CardNumber.CN_SEVEN;
+		case 7:
+			return messages.CardNumber.CN_EIGHT;
+		case 8:
+			return messages.CardNumber.CN_NINE;
+		case 9:
+			return messages.CardNumber.CN_TEN;
+		case 10: 
+			return messages.CardNumber.CN_JACK;
+		case 11:
+			return messages.CardNumber.CN_QUEEN;
+		case 12:
+			return messages.CardNumber.CN_KING;
+	}
+}
 
 function userDirectionToString(userDirection) {
 	switch(userDirection){
@@ -119,6 +154,20 @@ function cardTypeToString(cardType){
 	}
 }
 
+function cardTypeToEnum(cardType){
+
+	switch(cardType){
+		case 0:
+			return messages.CardType.CT_SPADES;
+		case 1:
+			return messages.CardType.CT_HEARTS;
+		case 2:
+			return messages.CardType.CT_CLUBS;
+		case 3:
+			return messages.CardType.CT_DIAMONDS;
+	}
+}
+
 rl.on('line', function(line){
 	var commands = line.trim().split(" ")	
 	switch (commands[0]){
@@ -138,16 +187,17 @@ rl.on('line', function(line){
 		client.write(messages.BasRequestResponse.encode({
 			request_type: messages.RequestResponseType.FC_SEND_TRUMP,
 			card_in_play: {
-				card_number: 1,
-				card_type: messages.CardType.CT_SPADES
+				card_number: messages.CardNumber.CN_ACE,
+				card_type: cardTypeToEnum(parseInt(commands[2]))
 			}
 		}));
+		break;
 		case "PC" :
 		client.write(messages.BasRequestResponse.encode({
 			request_type: messages.RequestResponseType.FC_PLAY_CARD,
 			card_in_play: {
-				card_number: commands[1],
-				card_type: parseInt(commands[2])
+				card_number: cardNumberToEnum(parseInt(commands[1])),
+				card_type: cardTypeToEnum(parseInt(commands[2]))
 			}
 		}));
 		break;
