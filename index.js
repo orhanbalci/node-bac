@@ -63,6 +63,9 @@ client.on('data', function(data) {
 			return cardNumberToString(card.card_number) + " of " + cardTypeToString(card.card_type)
 		}).join())
 		console.log("Whos Turn : " + userDirectionToString(serverMessage.user_direction))
+	} else if (serverMessage.request_type == messages.RequestResponseType.FS_SEND_TRUMP){
+		console.log("Trump is : " + cardNumberToString(serverMessage.card_in_play.card_number) 
+			+ " of " + cardTypeToString(serverMessage.card_in_play.card_type))
 	}
 });
 
